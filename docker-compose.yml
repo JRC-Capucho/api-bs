@@ -1,0 +1,17 @@
+services:
+  mysql_bs:
+    image: mysql:latest
+    container_name: mysql_bootsolutions
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: bootsolutions_datas
+    ports:
+      - '3306:3306'
+  test_bs:
+    image: mysql:latest
+    container_name: test_bootsolutions
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: bootsolutions_datas
+    ports:
+      - '3360:3306'
