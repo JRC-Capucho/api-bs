@@ -20,8 +20,26 @@ model User {
 
   firstName String?
   lastName  String?
+  Company   Company[]
 
   @@map("users")
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name   String
+  cnpj   String  @unique
+  active Boolean @default(true)
+
+  userId  Int
+  user    User      @relation(fields: [userId], references: [id])
+  Product Product[]
+  Sale    Sale[]
+
+  @@map("companies")
 }
 
 model Product {
@@ -29,10 +47,49 @@ model Product {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name   String
-  about  String
-  amount Int
-  price  Float
+  name                       String
+  about                      String?
+  quantityAvailable          Int
+  quantityAvailableNextMonth Int?
+  price                      Decimal
+  experyDate                 DateTime?
+  imgRef                     String?
+
+  companyId     Int
+  company       Company         @relation(fields: [companyId], references: [id])
+  Sale          Sale[]
+  StockMovement StockMovement[]
 
   @@map("products")
+}
+
+model Sale {
+  id       Int      @id @default(autoincrement())
+  saleDate DateTime @default(now())
+
+  quantity Int
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model StockMovement {
+  id Int @id @default(autoincrement())
+
+  movimentType movimentType
+  movimentDate DateTime     @default(now())
+  quantity     Int
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("StockMovements")
+}
+
+enum movimentType {
+  input
+  output
 }
