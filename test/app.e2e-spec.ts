@@ -5,6 +5,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { AuthDto } from 'src/auth/dto';
 import { UserDto } from 'src/user/dto';
+import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -137,6 +138,24 @@ describe('App e2e', () => {
           })
           .withBody(dto)
           .expectStatus(200);
+      });
+    });
+  });
+  describe('Company', () => {
+    describe('Create Company', () => {
+      it('Create Company', () => {
+        const dto: CreateCompanyDto = {
+          name: 'Nike',
+          cnpj: '1212131313',
+        };
+        return pactum
+          .spec()
+          .post('/company/create')
+          .withBody(dto)
+          .withHeaders({
+            Authorization: 'Bearer  $S{userAt}',
+          })
+          .expectStatus(201);
       });
     });
   });
