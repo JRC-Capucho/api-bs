@@ -6,6 +6,7 @@ import { PrismaService } from '../src/prisma/prisma.service';
 import { AuthDto } from 'src/auth/dto';
 import { UserDto } from 'src/user/dto';
 import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
+import { EditCompanyDto } from 'src/company/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -143,7 +144,46 @@ describe('App e2e', () => {
   });
   describe('Company', () => {
     describe('Create Company', () => {
-      it('Create Company', () => {
+      it('should throw if no body', () => {
+        return pactum
+          .spec()
+          .post('/company/create')
+          .withHeaders({
+            Authorization: 'Bearer  $S{userAt}',
+          })
+          .expectStatus(400);
+      });
+      it('should throw if name null', () => {
+        const dto: CreateCompanyDto = {
+          name: '',
+          cnpj: '1212131313',
+        };
+        return pactum
+          .spec()
+          .post('/company/create')
+          .withBody(dto)
+          .withHeaders({
+            Authorization: 'Bearer  $S{userAt}',
+          })
+          .expectStatus(400);
+      });
+
+      it('should throw if cpnj null', () => {
+        const dto: CreateCompanyDto = {
+          name: 'teste',
+          cnpj: '',
+        };
+        return pactum
+          .spec()
+          .post('/company/create')
+          .withBody(dto)
+          .withHeaders({
+            Authorization: 'Bearer  $S{userAt}',
+          })
+          .expectStatus(400);
+      });
+
+      it('Should Create Company', () => {
         const dto: CreateCompanyDto = {
           name: 'Nike',
           cnpj: '1212131313',
@@ -156,6 +196,23 @@ describe('App e2e', () => {
             Authorization: 'Bearer  $S{userAt}',
           })
           .expectStatus(201);
+      });
+    });
+
+    describe('Edit company', () => {
+      it('Should Edit Company', () => {
+        const dto: EditCompanyDto = {
+          name: 'Logitech',
+          cnpj: '987987987',
+        };
+        return pactum
+          .spec()
+          .patch('/company/edit')
+          .withBody(dto)
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200);
       });
     });
   });
