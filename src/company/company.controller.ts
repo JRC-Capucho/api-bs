@@ -10,7 +10,7 @@ import { EditCompanyDto } from './dto';
 export class CompanyController {
   constructor(private companyService: CompanyService) {}
 
-  @Post('create')
+  @Post()
   createCompany(
     @GetUser('email') userEmail: string,
     @Body() dto: CreateCompanyDto,
@@ -18,7 +18,7 @@ export class CompanyController {
     return this.companyService.createCompany(userEmail, dto);
   }
 
-  @Patch('edit')
+  @Patch()
   editCompany(
     @GetUser('email') userEmail: string,
     @Body() dto: EditCompanyDto,

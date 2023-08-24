@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  Param,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { EditCompanyDto } from './dto';
@@ -12,7 +7,7 @@ import { EditCompanyDto } from './dto';
 export class CompanyService {
   constructor(private prisma: PrismaService) {}
 
-  async createCompany(userEmail: string, dto: CreateCompanyDto) {
+  async getUserId(userEmail: string): Promise<number> {
     const user = await this.prisma.user.findUnique({
       select: {
         id: true,
@@ -22,7 +17,34 @@ export class CompanyService {
       },
     });
 
-    const userId: number = user.id;
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
+
+    return user.id;
+  }
+
+  async getCompanyId(userEmail: string): Promise<number> {
+    const userId = await this.getUserId(userEmail);
+
+    const company = await this.prisma.company.findFirst({
+      select: {
+        id: true,
+      },
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!company) {
+      throw new ForbiddenException('Company not found');
+    }
+
+    return company.id;
+  }
+
+  async createCompany(userEmail: string, dto: CreateCompanyDto) {
+    const userId: number = await this.getUserId(userEmail);
 
     const company = await this.prisma.company.create({
       data: {
@@ -33,32 +55,14 @@ export class CompanyService {
 
     delete company.id;
     delete company.userId;
+
     return company;
   }
 
   async editCompany(userEmail: string, dto: EditCompanyDto) {
-    if (!dto) throw new BadRequestException('No data');
-    const user = await this.prisma.user.findUnique({
-      select: {
-        id: true,
-      },
-      where: {
-        email: userEmail,
-      },
-    });
+    if (!dto) throw new ForbiddenException('No data');
 
-    const userId: number = user.id;
-
-    const aux = await this.prisma.company.findFirst({
-      select: {
-        id: true,
-      },
-      where: {
-        userId: userId,
-      },
-    });
-
-    const companyId: number = aux.id;
+    const companyId: number = await this.getCompanyId(userEmail);
 
     const company = await this.prisma.company.update({
       where: {
