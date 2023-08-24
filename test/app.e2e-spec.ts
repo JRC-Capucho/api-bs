@@ -7,6 +7,7 @@ import { AuthDto } from 'src/auth/dto';
 import { UserDto } from 'src/user/dto';
 import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
 import { EditCompanyDto } from 'src/company/dto';
+import { CreateProductDto, EditProductDto } from 'src/product/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -147,7 +148,7 @@ describe('App e2e', () => {
       it('should throw if no body', () => {
         return pactum
           .spec()
-          .post('/company/create')
+          .post('/company')
           .withHeaders({
             Authorization: 'Bearer  $S{userAt}',
           })
@@ -160,7 +161,7 @@ describe('App e2e', () => {
         };
         return pactum
           .spec()
-          .post('/company/create')
+          .post('/company')
           .withBody(dto)
           .withHeaders({
             Authorization: 'Bearer  $S{userAt}',
@@ -175,7 +176,7 @@ describe('App e2e', () => {
         };
         return pactum
           .spec()
-          .post('/company/create')
+          .post('/company')
           .withBody(dto)
           .withHeaders({
             Authorization: 'Bearer  $S{userAt}',
@@ -190,7 +191,7 @@ describe('App e2e', () => {
         };
         return pactum
           .spec()
-          .post('/company/create')
+          .post('/company')
           .withBody(dto)
           .withHeaders({
             Authorization: 'Bearer  $S{userAt}',
@@ -207,7 +208,7 @@ describe('App e2e', () => {
         };
         return pactum
           .spec()
-          .patch('/company/edit')
+          .patch('/company')
           .withBody(dto)
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
@@ -217,11 +218,85 @@ describe('App e2e', () => {
     });
   });
   describe('Product', () => {
-    describe('Create Product', () => {});
-    describe('Get Product by ID', () => {});
-    describe('Get Product by ID', () => {});
-    describe('Edit Product by ID', () => {});
-    describe('Delete Product by ID', () => {});
+    describe('Create Product', () => {
+      it('Should Create Product', () => {
+        const dto: CreateProductDto = {
+          name: 'Air Jordan',
+          quantityAvailable: 23,
+          price: 300.8,
+        };
+        return pactum
+          .spec()
+          .post('/product')
+          .withBody(dto)
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(201)
+          .stores('productId', 'id');
+      });
+    });
+
+    describe('Edit Product by ID', () => {
+      it('Should Update Product', () => {
+        const dto: EditProductDto = {
+          name: 'MacBook M2',
+          quantityAvailable: 10,
+          price: 6800,
+        };
+        return pactum
+          .spec()
+          .patch('/product/{id}')
+          .withPathParams('id', '$S{productId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.name)
+          .expectBodyContains(dto.quantityAvailable)
+          .expectBodyContains(dto.price);
+      });
+    });
+
+    describe('Get Product by ID', () => {
+      it('should search product by id', () => {
+        return pactum
+          .spec()
+          .get('/product/{id}')
+          .expectStatus(200)
+          .withPathParams('id', '$S{productId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          });
+      });
+    });
+
+    describe('Get Product', () => {
+      it('Should get products', () => {
+        return pactum
+          .spec()
+          .get('/product')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
+    });
+
+    describe('Delete Product by ID', () => {
+      it('should delete product', () => {
+        return pactum
+          .spec()
+          .delete('/product/{id}')
+          .withPathParams('id', '$S{productId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(204);
+      });
+    });
   });
 
   it.todo('should pass');
