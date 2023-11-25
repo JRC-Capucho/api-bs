@@ -1,12 +1,15 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -20,76 +23,41 @@ model User {
 
   firstName String?
   lastName  String?
-  Company   Company[]
 
   @@map("users")
 }
 
-model Company {
+model Client {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name   String
-  cnpj   String  @unique
-  active Boolean @default(true)
+  firstName String?
+  lastName  String?
 
-  userId  Int
-  user    User      @relation(fields: [userId], references: [id])
-  Product Product[]
-  Sale    Sale[]
+  birthDay DateTime
 
-  @@map("companies")
+  city String
+
+  email String @unique
+
+  status  Boolean
+  company String
+
+  @@map("clients")
 }
 
-model Product {
+model Call {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name                       String
-  about                      String?
-  quantityAvailable          Int
-  quantityAvailableNextMonth Int?
-  price                      Decimal
-  experyDate                 DateTime?
-  imgRef                     String?
+  name        String
+  description String?
+  client      Int
 
-  companyId     Int
-  company       Company         @relation(fields: [companyId], references: [id])
-  Sale          Sale[]
-  StockMovement StockMovement[]
+  priority   Int
+  occurrence Int
 
-  @@map("products")
-}
-
-model Sale {
-  id       Int      @id @default(autoincrement())
-  saleDate DateTime @default(now())
-
-  quantity Int
-
-  productId Int
-  product   Product @relation(fields: [productId], references: [id])
-
-  companyId Int
-  company   Company @relation(fields: [companyId], references: [id])
-}
-
-model StockMovement {
-  id Int @id @default(autoincrement())
-
-  movimentType movimentType
-  movimentDate DateTime     @default(now())
-  quantity     Int
-
-  productId Int
-  product   Product @relation(fields: [productId], references: [id])
-
-  @@map("StockMovements")
-}
-
-enum movimentType {
-  input
-  output
+  @@map("calls")
 }
