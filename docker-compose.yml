@@ -1,17 +1,25 @@
+version: "3.8"
+
 services:
-  mysql_bs:
-    image: mysql:latest
-    container_name: mysql_bootsolutions
-    environment:
-      MYSQL_ROOT_PASSWORD: 123
-      MYSQL_DATABASE: bootsolutions_datas
+  dev-db:
+    image: postgres:13
     ports:
-      - '3306:3306'
-  test_bs:
-    image: mysql:latest
-    container_name: test_bootsolutions
+      - 5434:5432
     environment:
-      MYSQL_ROOT_PASSWORD: 123
-      MYSQL_DATABASE: bootsolutions_datas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: nest
+    networks:
+      - helpdesk
+  test-db:
+    image: postgres:13
     ports:
-      - '3360:3306'
+      - 5435:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: nest
+    networks:
+      - helpdesk
+networks:
+  helpdesk:

@@ -1,13 +1,11 @@
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as pactum from 'pactum';
-import { AppModule } from '../src/app.module';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { PrismaService } from '../src/prisma/prisma.service';
 import { AuthDto } from 'src/auth/dto';
+import { callDTo } from 'src/call/dto';
 import { UserDto } from 'src/user/dto';
-import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
-import { EditCompanyDto } from 'src/company/dto';
-import { CreateProductDto, EditProductDto } from 'src/product/dto';
+import { AppModule } from '../src/app.module';
+import { PrismaService } from '../src/prisma/prisma.service';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -143,159 +141,17 @@ describe('App e2e', () => {
       });
     });
   });
-  describe('Company', () => {
-    describe('Create Company', () => {
-      it('should throw if no body', () => {
-        return pactum
-          .spec()
-          .post('/company')
-          .withHeaders({
-            Authorization: 'Bearer  $S{userAt}',
-          })
-          .expectStatus(400);
-      });
-      it('should throw if name null', () => {
-        const dto: CreateCompanyDto = {
-          name: '',
-          cnpj: '1212131313',
-        };
-        return pactum
-          .spec()
-          .post('/company')
-          .withBody(dto)
-          .withHeaders({
-            Authorization: 'Bearer  $S{userAt}',
-          })
-          .expectStatus(400);
-      });
 
-      it('should throw if cpnj null', () => {
-        const dto: CreateCompanyDto = {
-          name: 'teste',
-          cnpj: '',
-        };
-        return pactum
-          .spec()
-          .post('/company')
-          .withBody(dto)
-          .withHeaders({
-            Authorization: 'Bearer  $S{userAt}',
-          })
-          .expectStatus(400);
-      });
-
-      it('Should Create Company', () => {
-        const dto: CreateCompanyDto = {
-          name: 'Nike',
-          cnpj: '1212131313',
-        };
-        return pactum
-          .spec()
-          .post('/company')
-          .withBody(dto)
-          .withHeaders({
-            Authorization: 'Bearer  $S{userAt}',
-          })
-          .expectStatus(201);
-      });
-    });
-
-    describe('Edit company', () => {
-      it('Should Edit Company', () => {
-        const dto: EditCompanyDto = {
-          name: 'Logitech',
-          cnpj: '987987987',
-        };
-        return pactum
-          .spec()
-          .patch('/company')
-          .withBody(dto)
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(200);
-      });
-    });
-  });
-  describe('Product', () => {
-    describe('Create Product', () => {
-      it('Should Create Product', () => {
-        const dto: CreateProductDto = {
-          name: 'Air Jordan',
-          quantityAvailable: 23,
-          price: 300.8,
-        };
-        return pactum
-          .spec()
-          .post('/product')
-          .withBody(dto)
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(201)
-          .stores('productId', 'id');
-      });
-    });
-
-    describe('Edit Product by ID', () => {
-      it('Should Update Product', () => {
-        const dto: EditProductDto = {
-          name: 'MacBook M2',
-          quantityAvailable: 10,
-          price: 6800,
-        };
-        return pactum
-          .spec()
-          .patch('/product/{id}')
-          .withPathParams('id', '$S{productId}')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .withBody(dto)
-          .expectStatus(200)
-          .expectBodyContains(dto.name)
-          .expectBodyContains(dto.quantityAvailable)
-          .expectBodyContains(dto.price);
-      });
-    });
-
-    describe('Get Product by ID', () => {
-      it('should search product by id', () => {
-        return pactum
-          .spec()
-          .get('/product/{id}')
-          .expectStatus(200)
-          .withPathParams('id', '$S{productId}')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          });
-      });
-    });
-
-    describe('Get Product', () => {
-      it('Should get products', () => {
-        return pactum
-          .spec()
-          .get('/product')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(200)
-          .expectJsonLength(1);
-      });
-    });
-
-    describe('Delete Product by ID', () => {
-      it('should delete product', () => {
-        return pactum
-          .spec()
-          .delete('/product/{id}')
-          .withPathParams('id', '$S{productId}')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(204);
-      });
+  describe('call', () => {
+    it('Should create call', async () => {
+      const dto: callDTo = {
+        name: 'sla',
+        description: 'hum...',
+        client: 10,
+        priority: 1,
+        occurrence: 3,
+      };
+      return pactum.spec().post('/call').withBody(dto).expectStatus(200);
     });
   });
 
